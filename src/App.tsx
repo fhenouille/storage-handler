@@ -10,6 +10,6 @@ const App: FunctionComponent = () => {
       <Subscriber />
     </>
   );
-}
+};
 
 export default App;
