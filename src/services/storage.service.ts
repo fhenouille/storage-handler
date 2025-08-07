@@ -17,9 +17,21 @@ const subscribe = (keyToObserve: string, subscriberSetter: (value: string | null
     }
     subscribers[keyToObserve].add(subscriberSetter);
 
-    subscriberSetter(getItem(keyToObserve));
+    let lastItemValue = getItem(keyToObserve);
+    subscriberSetter(lastItemValue);
 
-    return () => { subscribers[keyToObserve].delete(subscriberSetter); };
+    const intervalId = setInterval(() => {
+        const currentItemValue = getItem(keyToObserve);
+        if (currentItemValue !== lastItemValue) {
+            lastItemValue = currentItemValue;
+            subscriberSetter(currentItemValue);
+        }
+    }, 500);
+
+    return () => {
+        subscribers[keyToObserve].delete(subscriberSetter);
+        clearInterval(intervalId);
+    };
 }
 
 export const customStorage = { setItem, subscribe };
