@@ -1,3 +1,5 @@
+// A dictionary that maps each key to a set of subscriber functions.
+// Each subscriber function will be called when the corresponding key's value changes.
 const subscribers: Record<string, Set<(value: string | null) => void>> = {};
 
 const setItem = (key: string, value: string) => {
@@ -11,6 +13,8 @@ const getItem = (key: string) => {
   return localStorage.getItem(key);
 };
 
+// Subscribes a component to changes on a specific key.
+// The subscriberSetter will be called whenever the value changes
 const subscribe = (
   keyToObserve: string,
   subscriberSetter: (value: string | null) => void
@@ -23,6 +27,7 @@ const subscribe = (
   let lastItemValue = getItem(keyToObserve);
   subscriberSetter(lastItemValue);
 
+  // Start polling every 500ms to detect external changes
   const intervalId = setInterval(() => {
     const currentItemValue = getItem(keyToObserve);
     if (currentItemValue !== lastItemValue) {
@@ -31,6 +36,7 @@ const subscribe = (
     }
   }, 500);
 
+  // Return an unsubscribe function to stop listening and clear the interval.
   return () => {
     subscribers[keyToObserve].delete(subscriberSetter);
     clearInterval(intervalId);

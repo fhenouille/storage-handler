@@ -1,45 +1,58 @@
-import { useState, type FunctionComponent } from "react";
+import { useEffect, useState, type FunctionComponent } from "react";
 import { customStorage } from "../services/storage.service";
 
 const Subscriber: FunctionComponent = () => {
-  const [key, setKey] = useState("");
+  const [keyInput, setKeyInput] = useState("");
   const [subscribedKey, setSubscribedKey] = useState("");
-  const [correspondingValue, setCorrespondingValue] = useState<string | null>();
-  const [, setUnsubscribeKey] = useState<() => void>();
+  const [valueForSubscribedKey, setValueForSubscribedKey] = useState<
+    string | null
+  >();
+  const [unsubscribeFn, setUnsubscribeFn] = useState<() => void>();
+
+  useEffect(() => {
+    // Cleanup on unmount
+    return () => {
+      if (unsubscribeFn) {
+        unsubscribeFn();
+      }
+    };
+  }, [unsubscribeFn]);
+
+  const handleSubscribe = () => {
+    if (keyInput && keyInput !== subscribedKey) {
+      //subscribe to new key
+      const newUnsubscribeFn = customStorage.subscribe(
+        keyInput,
+        setValueForSubscribedKey
+      );
+      //get new unsuscribe function and unsubscribe from old key if necessary
+      setUnsubscribeFn((oldUnsuscribeFn) => {
+        if (oldUnsuscribeFn) {
+          oldUnsuscribeFn();
+        }
+        return newUnsubscribeFn;
+      });
+      setSubscribedKey(keyInput);
+    }
+    setKeyInput("");
+  };
+
   return (
     <>
       <h2>Subscribe to a specific key</h2>
       <input
         type="text"
         placeholder="Type a key"
-        value={key}
-        onChange={(e) => setKey(e.target.value)}
+        value={keyInput}
+        onChange={(e) => setKeyInput(e.target.value)}
       />
-      <button
-        disabled={!key}
-        onClick={() => {
-          if (key !== subscribedKey) {
-            const unsubscribe = customStorage.subscribe(
-              key,
-              setCorrespondingValue
-            );
-            setSubscribedKey(key);
-            setUnsubscribeKey((oldUnsuscribe) => {
-              if (oldUnsuscribe) {
-                oldUnsuscribe();
-              }
-              return unsubscribe;
-            });
-          }
-          setKey("");
-        }}
-      >
+      <button disabled={!keyInput} onClick={handleSubscribe}>
         Submit
       </button>
       <p>{`Subscribed key: ${subscribedKey}`}</p>
       {subscribedKey && (
         <p>{`Corresponding value: ${
-          correspondingValue ?? "No Data found !"
+          valueForSubscribedKey ?? "No Data found !"
         }`}</p>
       )}
     </>
