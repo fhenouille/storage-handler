@@ -4,8 +4,11 @@ const subscribers: Record<string, Set<(value: string | null) => void>> = {};
 
 const setItem = (key: string, value: string) => {
   localStorage.setItem(key, value);
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (subscribers[key]) {
-    subscribers[key].forEach((setter) => setter(value));
+    subscribers[key].forEach((setter) => {
+      setter(value);
+    });
   }
 };
 
@@ -19,6 +22,7 @@ const subscribe = (
   keyToObserve: string,
   subscriberSetter: (value: string | null) => void
 ) => {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (!subscribers[keyToObserve]) {
     subscribers[keyToObserve] = new Set();
   }

@@ -44,9 +44,11 @@ const Subscriber: FunctionComponent = () => {
         type="text"
         placeholder="Type a key"
         value={keyInput}
-        onChange={(e) => setKeyInput(e.target.value)}
+        onChange={(e) => {
+          setKeyInput(e.target.value);
+        }}
       />
-      <button disabled={!keyInput} onClick={handleSubscribe}>
+      <button type="button" disabled={!keyInput} onClick={handleSubscribe}>
         Submit
       </button>
       <p>{`Subscribed key: ${subscribedKey}`}</p>

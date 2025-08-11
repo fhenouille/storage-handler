@@ -11,15 +11,20 @@ const Emitter: FunctionComponent = () => {
         type="text"
         placeholder="Type a key"
         value={key}
-        onChange={(e) => setKey(e.target.value)}
+        onChange={(e) => {
+          setKey(e.target.value);
+        }}
       />
       <input
         type="text"
         placeholder="Type a value"
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e) => {
+          setValue(e.target.value);
+        }}
       />
       <button
+        type="button"
         disabled={!key}
         onClick={() => {
           customStorage.setItem(key, value);
