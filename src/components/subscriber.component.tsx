@@ -1,37 +1,13 @@
-import { useEffect, useState, type FunctionComponent } from "react";
-import { customStorage } from "../services/storage.service";
+import { useState, type FunctionComponent } from "react";
+import { useKeyStorage } from "../services/useKeyStorage";
 
 const Subscriber: FunctionComponent = () => {
   const [keyInput, setKeyInput] = useState("");
-  const [subscribedKey, setSubscribedKey] = useState("");
-  const [valueForSubscribedKey, setValueForSubscribedKey] = useState<
-    string | null
-  >();
-  const [unsubscribeFn, setUnsubscribeFn] = useState<() => void>();
-
-  useEffect(() => {
-    // Cleanup on unmount
-    return () => {
-      if (unsubscribeFn) {
-        unsubscribeFn();
-      }
-    };
-  }, [unsubscribeFn]);
+  const [subscribedKey, setSubscribedKey] = useState<string | undefined>();
+  const { keyValue: valueForSubscribedKey } = useKeyStorage(subscribedKey);
 
   const handleSubscribe = () => {
     if (keyInput && keyInput !== subscribedKey) {
-      //subscribe to new key
-      const newUnsubscribeFn = customStorage.subscribe(
-        keyInput,
-        setValueForSubscribedKey
-      );
-      //get new unsuscribe function and unsubscribe from old key if necessary
-      setUnsubscribeFn((oldUnsuscribeFn) => {
-        if (oldUnsuscribeFn) {
-          oldUnsuscribeFn();
-        }
-        return newUnsubscribeFn;
-      });
       setSubscribedKey(keyInput);
     }
     setKeyInput("");
@@ -51,11 +27,13 @@ const Subscriber: FunctionComponent = () => {
       <button type="button" disabled={!keyInput} onClick={handleSubscribe}>
         Submit
       </button>
-      <p>{`Subscribed key: ${subscribedKey}`}</p>
       {subscribedKey && (
-        <p>{`Corresponding value: ${
-          valueForSubscribedKey ?? "No Data found !"
-        }`}</p>
+        <>
+          <p>{`Subscribed key: ${subscribedKey}`}</p>
+          <p>{`Corresponding value: ${
+            valueForSubscribedKey ?? "No Data found !"
+          }`}</p>
+        </>
       )}
     </>
   );

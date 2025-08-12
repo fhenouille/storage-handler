@@ -2,8 +2,12 @@
 // Each subscriber function will be called when the corresponding key's value changes.
 const subscribers: Record<string, Set<(value: string | null) => void>> = {};
 
-const setItem = (key: string, value: string) => {
-  localStorage.setItem(key, value);
+const setItem = (key: string, value: string | null) => {
+  if (value === null) {
+    localStorage.removeItem(key);
+  } else {
+    localStorage.setItem(key, value);
+  }
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (subscribers[key]) {
     subscribers[key].forEach((setter) => {
